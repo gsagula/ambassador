@@ -699,7 +699,7 @@ class Config (object):
         return "127.0.0.1:%d" % self.diag_port()
 
     def add_intermediate_cluster(self, _source, name, _service, urls,
-                                 type="strict_dns", lb_type="round_robin",
+                                 type="strict_dns", lb_policy="round_robin",
                                  cb_name=None, od_name=None, originate_tls=None,
                                  grpc=False, host_rewrite=None):
         if name not in self.envoy_clusters:
@@ -711,7 +711,7 @@ class Config (object):
                 _service=_service,
                 name=name,
                 type=type,
-                lb_type=lb_type,
+                lb_policy=lb_policy,
                 urls=urls
             )
 
@@ -741,9 +741,10 @@ class Config (object):
 
             if host_rewrite and originate_tls:
                 cluster['tls_array'].append({'key': 'sni', 'value': host_rewrite })
-
+            
             if grpc:
-                cluster['features'] = 'http2'
+                # TODO(gsagula): this is weird.
+                cluster['http2_protocol_options'] = True
 
             self.envoy_clusters[name] = cluster
         else:
@@ -1050,8 +1051,8 @@ class Config (object):
             self.envoy_config['filters'].append(ratelimit_filter)
             self.envoy_config['grpc_services'].append(ratelimit_grpc_service)
         # Then append non-configurable cors and decoder filters
-        self.envoy_config['filters'].append(SourcedDict(name="cors", config={}))
-        self.envoy_config['filters'].append(SourcedDict(type="decoder", name="router", config={}))
+        self.envoy_config['filters'].append(SourcedDict(name="envoy.cors", config={}))
+        self.envoy_config['filters'].append(SourcedDict(name="envoy.router", config={}))
 
         # For mappings, start with empty sets for everything.
         mappings = self.config.get("mappings", {})
@@ -1083,7 +1084,7 @@ class Config (object):
 
             handler(module_name, modules[module_name])
 
-        # Once modules are handled, we can set up our admin config...
+        # Once modules are handled, we can set up our admin config...   
         self.envoy_config['admin'] = SourcedDict(
             _from=self.ambassador_module,
             admin_port=self.ambassador_module["admin_port"]
@@ -1470,7 +1471,7 @@ class Config (object):
 
         host_rewrite = config.get("host_rewrite", None)
 
-        cluster_name = "cluster_ext_ratelimit"
+        cluster_name = "cluster_ext_rate_limit"
         filter_config = {
             "domain": "ambassador",
             "request_type": "both",
@@ -1485,8 +1486,7 @@ class Config (object):
 
         filter = SourcedDict(
             _source=first_source,
-            type="decoder",
-            name="rate_limit",
+            name="envoy.rate_limit",
             config=filter_config
         )
 
@@ -1494,7 +1494,7 @@ class Config (object):
             (svc, url, originate_tls, otls_name) = self.service_tls_check(cluster_hosts, None, host_rewrite)
             self.add_intermediate_cluster(first_source, cluster_name,
                                           'extratelimit', [url],
-                                          type="strict_dns", lb_type="round_robin",
+                                          type="strict_dns", lb_policy="round_robin",
                                           grpc=True, host_rewrite=host_rewrite)
 
         for source in sources:
@@ -1506,7 +1506,7 @@ class Config (object):
     def auth_helper(self, sources, config, cluster_hosts, module):
         sources.append(module['_source'])
 
-        for key in [ 'path_prefix', 'timeout_ms', 'cluster' ]:
+        for key in [ 'timeout', 'cluster' ]:
             value = module.get(key, None)
 
             if value != None:
@@ -1517,21 +1517,21 @@ class Config (object):
                         "AuthService cannot support multiple %s values; using %s" %
                         (key, previous)
                     )
-
+                    
                     self.post_error(RichStatus.fromError(errstr), key=module['_source'])
                 else:
-                    config[key] = value
+                    config["http_service"]["server_uri"][key] = value
 
-        headers = module.get('allowed_headers', None)
+        headers = module.get('response_headers_to_remove', None)
 
         if headers:
-            allowed_headers = config.get('allowed_headers', [])
+            response_headers_to_remove = config.get('response_headers_to_remove', [])
 
             for hdr in headers:
-                if hdr not in allowed_headers:
-                    allowed_headers.append(hdr)
+                if hdr not in response_headers_to_remove:
+                    response_headers_to_remove.append(hdr)
 
-            config['allowed_headers'] = allowed_headers
+            config["http_service"]['response_headers_to_remove'] = response_headers_to_remove
 
         auth_service = module.get("auth_service", None)
         # weight = module.get("weight", 100)
@@ -1542,8 +1542,15 @@ class Config (object):
 
     def module_config_authentication(self, name, amod, auth_mod, auth_configs):
         filter_config = {
-            "cluster": "cluster_ext_auth",
-            "timeout_ms": 5000
+            "http_service": {
+                "server_uri": {
+                    # TODO(gsagula): uri is required field in Envoy, but not used by the
+                    # envoy.ext_authz filter, so we give it some random value. 
+                    "uri": "0.0.0.0:0",
+                    "cluster": "cluster_ext_auth",
+                    "timeout": 5000
+                }
+            }
         }
 
         cluster_hosts = {}
@@ -1565,12 +1572,11 @@ class Config (object):
         filter = SourcedDict(
             _source=first_source,
             _services=sorted(cluster_hosts.keys()),
-            type="decoder",
-            name="extauth",
+            name="envoy.ext_authz",
             config=filter_config
         )
 
-        cluster_name = filter_config['cluster']
+        cluster_name = filter_config["http_service"]["server_uri"]['cluster']
         host_rewrite = filter_config.get('host_rewrite', None)
 
         if cluster_name not in self.envoy_clusters:
@@ -1591,8 +1597,8 @@ class Config (object):
                     protocols['http'] = True
 
                 if otls_name:
-                    filter_config['cluster'] = cluster_name + "_" + otls_name
-                    cluster_name = filter_config['cluster']
+                    filter_config["http_service"]["server_uri"]['cluster'] = cluster_name + "_" + otls_name
+                    cluster_name = filter_config["http_service"]["server_uri"]['cluster']
 
                 urls.append(url)
 
@@ -1601,7 +1607,7 @@ class Config (object):
 
             self.add_intermediate_cluster(first_source, cluster_name,
                                           'extauth', urls,
-                                          type="strict_dns", lb_type="round_robin",
+                                          type="strict_dns", lb_policy="round_robin",
                                           originate_tls=originate_tls, host_rewrite=host_rewrite)
 
         for source in sources:
@@ -1685,7 +1691,7 @@ class Config (object):
         filters = configuration.get('filters', [])
 
         for filter in filters:
-            if filter['name'] == 'extauth':
+            if filter['name'] == 'envoy.ext_authz':
                 extauth = filter
 
                 extauth['_service_weight'] = 100.0 / len(extauth['_services'])

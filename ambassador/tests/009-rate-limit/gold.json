@@ -105,14 +105,14 @@
               ]
             },
             "filters": [
-              {"type": "decoder",
-                "name": "rate_limit",
+              {
+                "name": "envoy.rate_limit",
                 "config": {"domain": "ambassador", "request_type": "both", "timeout_ms": 20}
               },{
-                "name": "cors",
+                "name": "envoy.cors",
                 "config": {}
-              },{"type": "decoder",
-                "name": "router",
+              },{
+                "name": "envoy.router",
                 "config": {}
               }
             ]
@@ -122,51 +122,60 @@
     }
   ],
   "admin": {
-    "address": "tcp://127.0.0.1:8001",
+    "address": {
+      "socket_address": {
+        "address": "127.0.0.1",
+        "port_value": 8001
+      }
+    },
     "access_log_path": "/tmp/admin_access_log"
   },
   "cluster_manager": {
     "clusters": [
+      
       {
         "name": "cluster_127_0_0_1_8877",
-        "connect_timeout_ms": 3000,
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin",
+        "lb_policy": "round_robin",
         "hosts": [
           {
             "url": "tcp://127.0.0.1:8877"
           }
-
-        ]},
+        ]
+      },
+      
       {
-        "name": "cluster_ext_ratelimit",
-        "connect_timeout_ms": 3000,
+        "name": "cluster_ext_rate_limit",
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin","features": "http2",
+        "lb_policy": "round_robin",
+        "http2_protocol_options": {},
         "hosts": [
           {
             "url": "tcp://example-rate-limit:5000"
           }
-
-        ]},
+        ]
+      },
+      
       {
         "name": "cluster_qotm",
-        "connect_timeout_ms": 3000,
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin",
+        "lb_policy": "round_robin",
         "hosts": [
           {
             "url": "tcp://qotm:80"
           }
-
-        ]}
-
+        ]
+      }
     ]
   },
   "rate_limit_service": {
-    "type": "grpc_service",
-    "config": {
-      "cluster_name": "cluster_ext_ratelimit"
+    "grpc_service": {
+      "envoy_grpc": {
+        "cluster_name": "cluster_ext_rate_limit"
+      }
     }
   },
 

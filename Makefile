@@ -233,7 +233,7 @@ version:
 	sed -e "s/{{VERSION}}/$(VERSION)/g" < VERSION-template.py > ambassador/ambassador/VERSION.py
 
 e2e-versioned-manifests: venv website-yaml
-	cd end-to-end && PATH=$(shell pwd)/venv/bin:$(PATH) bash create-manifests.sh $(AMBASSADOR_DOCKER_IMAGE) $(STATSD_DOCKER_IMAGE)
+	cd end-to-end && PATH="$(shell pwd)/venv/bin:$(PATH)" bash create-manifests.sh $(AMBASSADOR_DOCKER_IMAGE) $(STATSD_DOCKER_IMAGE)
 
 website-yaml:
 	mkdir -p docs/yaml
@@ -274,7 +274,7 @@ setup-develop: venv
 	venv/bin/pip install -q -e ambassador/.
 
 test: version setup-develop
-	cd ambassador && PATH=$(shell pwd)/venv/bin:$(PATH) pytest --tb=short --cov=ambassador --cov=ambassador_diag --cov-report term-missing
+	cd ambassador && PATH="$(shell pwd)/venv/bin:$(PATH)" pytest --tb=short --cov=ambassador --cov=ambassador_diag --cov-report term-missing
 
 update-aws:
 	@if [ -n "$(STABLE_TXT_KEY)" ]; then \

@@ -38,7 +38,7 @@
                 ],
                 "_service": "127.0.0.1:8877",
                 "_source": "ambassador.yaml.1",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_127_0_0_1_8877",
                 "type": "strict_dns",
                 "urls": [
@@ -51,8 +51,8 @@
                 ],
                 "_service": "192.168.0.1:45",
                 "_source": "mapping-grpc.yaml.1",
-                "features": "http2",
-                "lb_type": "round_robin",
+                "http2_protocol_options": true,
+                "lb_policy": "round_robin",
                 "name": "cluster_192_168_0_1_45",
                 "type": "strict_dns",
                 "urls": [
@@ -66,7 +66,7 @@
                 ],
                 "_service": "extauth",
                 "_source": "auth-2.yaml.1",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_ext_auth",
                 "type": "strict_dns",
                 "urls": [
@@ -80,7 +80,7 @@
                 ],
                 "_service": "httpbin.org",
                 "_source": "mapping-httpbin.yaml.1",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_http___httpbin_org",
                 "type": "strict_dns",
                 "urls": [
@@ -93,7 +93,7 @@
                 ],
                 "_service": "qotm",
                 "_source": "mapping-evil.yaml.3",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_http___qotm",
                 "type": "strict_dns",
                 "urls": [
@@ -106,7 +106,7 @@
                 ],
                 "_service": "google.com",
                 "_source": "mapping-google.yaml.1",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_https___google_com_otls_hr_google_com",
                 "tls_array": [
                     {
@@ -128,7 +128,7 @@
                 ],
                 "_service": "precedence_none",
                 "_source": "mapping-with-precedence.yaml.1",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_precedence_none",
                 "type": "strict_dns",
                 "urls": [
@@ -142,7 +142,7 @@
                 ],
                 "_service": "precedence_one",
                 "_source": "mapping-with-precedence.yaml.4",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_precedence_one",
                 "type": "strict_dns",
                 "urls": [
@@ -155,7 +155,7 @@
                 ],
                 "_service": "precedence_zero",
                 "_source": "mapping-with-precedence.yaml.2",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_precedence_zero",
                 "type": "strict_dns",
                 "urls": [
@@ -168,7 +168,7 @@
                 ],
                 "_service": "qotm",
                 "_source": "mapping-evil.yaml.1",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_qotm",
                 "type": "strict_dns",
                 "urls": [
@@ -190,7 +190,7 @@
                     "max_retries": 4,
                     "name": "custom"
                 },
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_qotm_cb_custom",
                 "type": "strict_dns",
                 "urls": [
@@ -208,7 +208,7 @@
                     "kind": "CircuitBreaker",
                     "name": "default"
                 },
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_qotm_cb_default",
                 "type": "strict_dns",
                 "urls": [
@@ -226,7 +226,7 @@
                     "kind": "CircuitBreaker",
                     "name": "default"
                 },
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_qotm_cb_default_od_default",
                 "outlier_detection": {
                     "apiVersion": "ambassador/v0",
@@ -244,7 +244,7 @@
                 ],
                 "_service": "qotm.tspace",
                 "_source": "mapping-qotm2.yaml.1",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_qotm_tspace",
                 "type": "strict_dns",
                 "urls": [
@@ -257,7 +257,7 @@
                 ],
                 "_service": "really-really-really-long-no-i-mean-really-really-really-really-long-service",
                 "_source": "mapping-long.yaml.1",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_really_really_really_long_no_i_m-0",
                 "type": "strict_dns",
                 "urls": [
@@ -271,7 +271,7 @@
                 ],
                 "_service": "really-really-really-long-no-i-mean-really-really-really-really-long-service-two",
                 "_source": "mapping-long.yaml.3",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_really_really_really_long_no_i_m-1",
                 "type": "strict_dns",
                 "urls": [
@@ -284,7 +284,7 @@
                 ],
                 "_service": "httpbin.org",
                 "_source": "mapping-redirector.yaml.2",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_shadow_httpbin_org",
                 "type": "strict_dns",
                 "urls": [
@@ -297,7 +297,7 @@
                 ],
                 "_service": "myservice.org/",
                 "_source": "mapping-httpbin-shadow.yaml.1",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_shadow_https___myservice_org__otls_hr_httpbin_org",
                 "tls_array": [
                     {
@@ -319,7 +319,7 @@
                 ],
                 "_service": "slack.com",
                 "_source": "mapping-websocket.yaml.1",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_slack_com",
                 "type": "strict_dns",
                 "urls": [
@@ -331,7 +331,7 @@
             {
                 "_source": "--internal--",
                 "config": {},
-                "name": "cors"
+                "name": "envoy.cors"
             },
             {
                 "_referenced_by": [
@@ -343,21 +343,20 @@
                 ],
                 "_source": "auth-2.yaml.1",
                 "config": {
-                    "allowed_headers": [
-                        "x-qotm-session"
-                    ],
-                    "cluster": "cluster_ext_auth",
-                    "path_prefix": "/extauth",
-                    "timeout_ms": 5000
+                    "http_service": {
+                        "server_uri": {
+                            "cluster": "cluster_ext_auth",
+                            "timeout": 5000,
+                            "uri": "0.0.0.0:0"
+                        }
+                    }
                 },
-                "name": "extauth",
-                "type": "decoder"
+                "name": "envoy.ext_authz"
             },
             {
                 "_source": "--internal--",
                 "config": {},
-                "name": "router",
-                "type": "decoder"
+                "name": "envoy.router"
             }
         ],
         "listeners": [
@@ -1095,7 +1094,7 @@
             "kind": "AuthService",
             "name": "auth-canary",
             "version": "ambassador/v0",
-            "yaml": "allowed_headers:\n- x-qotm-session\napiVersion: ambassador/v0\nauth_service: http://canary-auth:3000\nkind: AuthService\nname: auth-canary\npath_prefix: /extauth\n"
+            "yaml": "apiVersion: ambassador/v0\nauth_service: http://canary-auth:3000\nkind: AuthService\nname: auth-canary\npath_prefix: /extauth\n"
         },
         "auth.yaml.1": {
             "_source": "auth.yaml",
@@ -1104,7 +1103,7 @@
             "kind": "AuthService",
             "name": "authentication",
             "version": "ambassador/v0",
-            "yaml": "allowed_headers:\n- x-qotm-session\napiVersion: ambassador/v0\nauth_service: http://example-auth:3000\nkind: AuthService\nname: authentication\npath_prefix: /extauth\n"
+            "yaml": "apiVersion: ambassador/v0\nauth_service: http://example-auth:3000\nkind: AuthService\nname: authentication\npath_prefix: /extauth\n"
         },
         "custom-breaker.yaml.1": {
             "_source": "custom-breaker.yaml",

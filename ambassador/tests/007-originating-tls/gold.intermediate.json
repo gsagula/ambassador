@@ -13,7 +13,7 @@
                 ],
                 "_service": "127.0.0.1:8877",
                 "_source": "ambassador.yaml.1",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_127_0_0_1_8877",
                 "type": "strict_dns",
                 "urls": [
@@ -26,7 +26,7 @@
                 ],
                 "_service": "extauth",
                 "_source": "auth-tls.yaml.1",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_ext_auth_otls_upstream",
                 "tls_array": [
                     {
@@ -58,7 +58,7 @@
                 ],
                 "_service": "qotm",
                 "_source": "mapping-qotm.yaml.1",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_qotm_otls_upstream",
                 "tls_array": [
                     {
@@ -89,7 +89,7 @@
             {
                 "_source": "--internal--",
                 "config": {},
-                "name": "cors"
+                "name": "envoy.cors"
             },
             {
                 "_services": [
@@ -97,21 +97,25 @@
                 ],
                 "_source": "auth-tls.yaml.1",
                 "config": {
-                    "allowed_headers": [
-                        "x-qotm-session"
-                    ],
-                    "cluster": "cluster_ext_auth_otls_upstream",
-                    "path_prefix": "/extauth",
-                    "timeout_ms": 5000
+                    "http_service": {
+                        "response_headers_to_remove": [
+                            "x-foo", 
+                            "x-foo-bar", 
+                            "x-bar"
+                        ],
+                        "server_uri": {
+                            "cluster": "cluster_ext_auth_otls_upstream", 
+                            "timeout": 5000, 
+                            "uri": "0.0.0.0:0"
+                        }
+                    }
                 },
-                "name": "extauth",
-                "type": "decoder"
+                "name": "envoy.ext_authz"
             },
             {
                 "_source": "--internal--",
                 "config": {},
-                "name": "router",
-                "type": "decoder"
+                "name": "envoy.router"
             }
         ],
         "listeners": [
@@ -255,7 +259,7 @@
             "kind": "AuthService",
             "name": "authentication",
             "version": "ambassador/v0",
-            "yaml": "allowed_headers:\n- x-qotm-session\napiVersion: ambassador/v0\nauth_service: https://example-auth:3000\nkind: AuthService\nname: authentication\npath_prefix: /extauth\ntls: upstream\n"
+            "yaml": "apiVersion: ambassador/v0\nauth_service: https://example-auth:3000\nkind: AuthService\nname: authentication\npath_prefix: /extauth\nresponse_headers_to_remove:\n- x-foo\n- x-foo-bar\n- x-bar\ntls: upstream\n"
         },
         "mapping-qotm.yaml.1": {
             "_source": "mapping-qotm.yaml",

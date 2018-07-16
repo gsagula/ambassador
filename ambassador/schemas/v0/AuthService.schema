@@ -13,11 +13,10 @@
                 { "type": "array", "items": { "type": "string" } }
             ]
         },
-        
         "auth_service": { "type": "string" },
         "path_prefix": { "type": "string" },
         "tls": { "type": [ "string", "boolean" ] },
-        "allowed_headers": {
+        "response_headers_to_remove": {
             "type": "array",
             "items": { "type": "string" }
         }

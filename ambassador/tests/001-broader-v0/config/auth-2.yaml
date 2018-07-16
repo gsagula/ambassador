@@ -4,5 +4,3 @@ kind:  AuthService
 name:  auth-canary
 auth_service: "http://canary-auth:3000"
 path_prefix: "/extauth"
-allowed_headers:
-- "x-qotm-session"

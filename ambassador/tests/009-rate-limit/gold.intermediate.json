@@ -13,7 +13,7 @@
                 ],
                 "_service": "127.0.0.1:8877",
                 "_source": "--internal--",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_127_0_0_1_8877",
                 "type": "strict_dns",
                 "urls": [
@@ -26,9 +26,9 @@
                 ],
                 "_service": "extratelimit",
                 "_source": "rate-limit-service.yaml.1",
-                "features": "http2",
-                "lb_type": "round_robin",
-                "name": "cluster_ext_ratelimit",
+                "http2_protocol_options": true,
+                "lb_policy": "round_robin",
+                "name": "cluster_ext_rate_limit",
                 "type": "strict_dns",
                 "urls": [
                     "tcp://example-rate-limit:5000"
@@ -42,7 +42,7 @@
                 ],
                 "_service": "qotm",
                 "_source": "mapping-qotm.yaml.1",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_qotm",
                 "type": "strict_dns",
                 "urls": [
@@ -54,7 +54,7 @@
             {
                 "_source": "--internal--",
                 "config": {},
-                "name": "cors"
+                "name": "envoy.cors"
             },
             {
                 "_source": "rate-limit-service.yaml.1",
@@ -63,20 +63,18 @@
                     "request_type": "both",
                     "timeout_ms": 20
                 },
-                "name": "rate_limit",
-                "type": "decoder"
+                "name": "envoy.rate_limit"
             },
             {
                 "_source": "--internal--",
                 "config": {},
-                "name": "router",
-                "type": "decoder"
+                "name": "envoy.router"
             }
         ],
         "grpc_services": [
             {
                 "_source": "--internal--",
-                "cluster_name": "cluster_ext_ratelimit",
+                "cluster_name": "cluster_ext_rate_limit",
                 "name": "rate_limit_service"
             }
         ],

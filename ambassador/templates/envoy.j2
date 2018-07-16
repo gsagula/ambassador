@@ -95,7 +95,6 @@
             "filters": [
               {% for filter in filters -%}
               { 
-                {%- if filter.type -%}"type": "{{ filter.type }}",{% endif %}
                 "name": "{{ filter.name }}",
                 "config": {{ filter.config | tojson }}
               }{{ "," if not loop.last }}
@@ -108,7 +107,12 @@
     {%- endfor %}
   ],
   "admin": {
-    "address": "tcp://127.0.0.1:{{ admin.admin_port }}",
+    "address": {
+      "socket_address": {
+        "address": "127.0.0.1",
+        "port_value": {{ admin.admin_port }}
+      }
+    },
     "access_log_path": "/tmp/admin_access_log"
   },
   "cluster_manager": {
@@ -116,10 +120,10 @@
       {% for cluster in clusters -%}
       {
         "name": "{{ cluster.name }}",
-        "connect_timeout_ms": {{ cluster.timeout_ms or 3000 }},
+        "connect_timeout": {{ cluster.timeout_ms or 3000 }},
         "type": "{{ cluster.type or 'strict_dns' }}",
-        "lb_type": "{{ cluster.lb_type or 'round_robin' }}",
-        {%- if cluster.features -%}"features": "{{ cluster.features }}",{% endif %}        
+        "lb_policy": "{{ cluster.lb_policy or 'round_robin' }}",
+        {%- if cluster.http2_protocol_options -%}"http2_protocol_options": {},{% endif %}        
         "hosts": [
           {% for url in cluster.urls -%}
           {
@@ -138,9 +142,9 @@
         "outlier_detection": {
           "consecutive_5xx": {{ cluster.outlier_detection.consecutive_5xx or 5 }},
           "max_ejection_percent": {{ cluster.outlier_detection.max_ejection or 100 }},
-          "interval_ms": {{ cluster.outlier_detection.interval_ms or 3000 }}
+          "interval": {{ cluster.outlier_detection.interval_ms or 3000 }}
         }{%- endif -%}{%- if cluster.tls_context -%},
-        "ssl_context": {
+        "tls_context": {
           {% for entry in cluster.tls_array %}
           "{{ entry.key }}": "{{ entry.value }}"{{ "," if not loop.last }}
           {% endfor %}
@@ -151,9 +155,10 @@
   },
   {% for grpc_service in grpc_services -%}
   "{{ grpc_service.name }}": {
-    "type": "grpc_service",
-    "config": {
-      "cluster_name": "{{ grpc_service.cluster_name }}"
+    "grpc_service": {
+      "envoy_grpc": {
+        "cluster_name": "{{ grpc_service.cluster_name }}"
+      }
     }
   },
   {% endfor %}

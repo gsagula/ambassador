@@ -69,10 +69,10 @@
             },
             "filters": [
               {
-                "name": "cors",
+                "name": "envoy.cors",
                 "config": {}
-              },{"type": "decoder",
-                "name": "router",
+              },{
+                "name": "envoy.router",
                 "config": {}
               }
             ]
@@ -82,16 +82,21 @@
     }
   ],
   "admin": {
-    "address": "tcp://127.0.0.1:4242",
+    "address": {
+      "socket_address": {
+        "address": "127.0.0.1",
+        "port_value": 4242
+      }
+    },
     "access_log_path": "/tmp/admin_access_log"
   },
   "cluster_manager": {
     "clusters": [
       {
         "name": "cluster_127_0_0_1_8877",
-        "connect_timeout_ms": 3000,
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin",        
+        "lb_policy": "round_robin",        
         "hosts": [
           {
             "url": "tcp://127.0.0.1:8877"
@@ -100,9 +105,9 @@
         ]},
       {
         "name": "cluster_qotm",
-        "connect_timeout_ms": 3000,
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin",        
+        "lb_policy": "round_robin",        
         "hosts": [
           {
             "url": "tcp://qotm:80"

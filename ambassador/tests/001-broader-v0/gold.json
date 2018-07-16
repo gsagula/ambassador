@@ -289,14 +289,14 @@
               ]
             },
             "filters": [
-              {"type": "decoder",
-                "name": "extauth",
-                "config": {"allowed_headers": ["x-qotm-session"], "cluster": "cluster_ext_auth", "path_prefix": "/extauth", "timeout_ms": 5000}
-              },{
-                "name": "cors",
+              { 
+                "name": "envoy.ext_authz",
+                "config": {"http_service": {"server_uri": {"cluster": "cluster_ext_auth", "timeout": 5000, "uri": "0.0.0.0:0"}}}
+              },{ 
+                "name": "envoy.cors",
                 "config": {}
-              },{"type": "decoder",
-                "name": "router",
+              },{ 
+                "name": "envoy.router",
                 "config": {}
               }
             ]
@@ -306,16 +306,21 @@
     }
   ],
   "admin": {
-    "address": "tcp://127.0.0.1:8001",
+    "address": {
+      "socket_address": {
+        "address": "127.0.0.1",
+        "port_value": 8001
+      }
+    },
     "access_log_path": "/tmp/admin_access_log"
   },
   "cluster_manager": {
     "clusters": [
       {
         "name": "cluster_127_0_0_1_8877",
-        "connect_timeout_ms": 3000,
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin",        
+        "lb_policy": "round_robin",        
         "hosts": [
           {
             "url": "tcp://127.0.0.1:8877"
@@ -324,9 +329,10 @@
         ]},
       {
         "name": "cluster_192_168_0_1_45",
-        "connect_timeout_ms": 3000,
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin","features": "http2",        
+        "lb_policy": "round_robin",
+        "http2_protocol_options": {},
         "hosts": [
           {
             "url": "tcp://192.168.0.1:45"
@@ -335,9 +341,9 @@
         ]},
       {
         "name": "cluster_ext_auth",
-        "connect_timeout_ms": 3000,
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin",        
+        "lb_policy": "round_robin",        
         "hosts": [
           {
             "url": "tcp://canary-auth:3000"
@@ -349,9 +355,9 @@
         ]},
       {
         "name": "cluster_http___httpbin_org",
-        "connect_timeout_ms": 3000,
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin",        
+        "lb_policy": "round_robin",        
         "hosts": [
           {
             "url": "tcp://httpbin.org:80"
@@ -360,9 +366,9 @@
         ]},
       {
         "name": "cluster_http___qotm",
-        "connect_timeout_ms": 3000,
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin",        
+        "lb_policy": "round_robin",        
         "hosts": [
           {
             "url": "tcp://qotm:80"
@@ -371,25 +377,25 @@
         ]},
       {
         "name": "cluster_https___google_com_otls_hr_google_com",
-        "connect_timeout_ms": 3000,
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin",        
+        "lb_policy": "round_robin",        
         "hosts": [
           {
             "url": "tcp://google.com:443"
           }
           
         ],
-        "ssl_context": {
+        "tls_context": {
           
           "sni": "google.com"
           
         }},
       {
         "name": "cluster_precedence_none",
-        "connect_timeout_ms": 3000,
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin",        
+        "lb_policy": "round_robin",        
         "hosts": [
           {
             "url": "tcp://precedence_none:80"
@@ -398,9 +404,9 @@
         ]},
       {
         "name": "cluster_precedence_one",
-        "connect_timeout_ms": 3000,
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin",        
+        "lb_policy": "round_robin",        
         "hosts": [
           {
             "url": "tcp://precedence_one:80"
@@ -409,9 +415,9 @@
         ]},
       {
         "name": "cluster_precedence_zero",
-        "connect_timeout_ms": 3000,
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin",        
+        "lb_policy": "round_robin",        
         "hosts": [
           {
             "url": "tcp://precedence_zero:80"
@@ -420,9 +426,9 @@
         ]},
       {
         "name": "cluster_qotm",
-        "connect_timeout_ms": 3000,
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin",        
+        "lb_policy": "round_robin",        
         "hosts": [
           {
             "url": "tcp://qotm:80"
@@ -431,9 +437,9 @@
         ]},
       {
         "name": "cluster_qotm_cb_custom",
-        "connect_timeout_ms": 3000,
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin",        
+        "lb_policy": "round_robin",        
         "hosts": [
           {
             "url": "tcp://qotm:80"
@@ -450,9 +456,9 @@
         }},
       {
         "name": "cluster_qotm_cb_default",
-        "connect_timeout_ms": 3000,
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin",        
+        "lb_policy": "round_robin",        
         "hosts": [
           {
             "url": "tcp://qotm:80"
@@ -469,9 +475,9 @@
         }},
       {
         "name": "cluster_qotm_cb_default_od_default",
-        "connect_timeout_ms": 3000,
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin",        
+        "lb_policy": "round_robin",        
         "hosts": [
           {
             "url": "tcp://qotm:80"
@@ -489,13 +495,13 @@
         "outlier_detection": {
           "consecutive_5xx": 5,
           "max_ejection_percent": 100,
-          "interval_ms": 3000
+          "interval": 3000
         }},
       {
         "name": "cluster_qotm_tspace",
-        "connect_timeout_ms": 3000,
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin",        
+        "lb_policy": "round_robin",        
         "hosts": [
           {
             "url": "tcp://qotm.tspace:80"
@@ -504,9 +510,9 @@
         ]},
       {
         "name": "cluster_really_really_really_long_no_i_m-0",
-        "connect_timeout_ms": 3000,
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin",        
+        "lb_policy": "round_robin",        
         "hosts": [
           {
             "url": "tcp://really-really-really-long-no-i-mean-really-really-really-really-long-service:80"
@@ -515,9 +521,9 @@
         ]},
       {
         "name": "cluster_really_really_really_long_no_i_m-1",
-        "connect_timeout_ms": 3000,
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin",        
+        "lb_policy": "round_robin",        
         "hosts": [
           {
             "url": "tcp://really-really-really-long-no-i-mean-really-really-really-really-long-service-two:80"
@@ -526,9 +532,9 @@
         ]},
       {
         "name": "cluster_shadow_httpbin_org",
-        "connect_timeout_ms": 3000,
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin",        
+        "lb_policy": "round_robin",        
         "hosts": [
           {
             "url": "tcp://httpbin.org:80"
@@ -537,25 +543,25 @@
         ]},
       {
         "name": "cluster_shadow_https___myservice_org__otls_hr_httpbin_org",
-        "connect_timeout_ms": 3000,
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin",        
+        "lb_policy": "round_robin",        
         "hosts": [
           {
             "url": "tcp://myservice.org/:443"
           }
           
         ],
-        "ssl_context": {
+        "tls_context": {
           
           "sni": "httpbin.org"
           
         }},
       {
         "name": "cluster_slack_com",
-        "connect_timeout_ms": 3000,
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin",        
+        "lb_policy": "round_robin",        
         "hosts": [
           {
             "url": "tcp://slack.com:80"

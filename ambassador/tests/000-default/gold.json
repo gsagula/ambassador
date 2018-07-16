@@ -124,21 +124,29 @@
                       }
                       
                     }
-                    
-                    
+                                      
                   ]
                 }
               ]
             },
             "filters": [
-              {"type": "decoder",
-                "name": "extauth",
-                "config": {"allowed_headers": ["x-extauth-required", "x-authenticated-as", "x-qotm-session"], "cluster": "cluster_ext_auth", "path_prefix": "/auth/v0", "timeout_ms": 5000}
+              { 
+                "name": "envoy.ext_authz",
+                "config": {
+                  "http_service": {
+                    "response_headers_to_remove": ["x-foo", "x-foo-bar", "x-bar"], 
+                    "server_uri": {
+                      "cluster": "cluster_ext_auth", 
+                      "timeout": 5000, 
+                      "uri": "0.0.0.0:0"
+                    }
+                  }
+                }
               },{
-                "name": "cors",
+                "name": "envoy.cors",
                 "config": {}
-              },{"type": "decoder",
-                "name": "router",
+              },{
+                "name": "envoy.router",
                 "config": {}
               }
             ]
@@ -148,16 +156,21 @@
     }
   ],
   "admin": {
-    "address": "tcp://127.0.0.1:8001",
+    "address": {
+      "socket_address": {
+        "address": "127.0.0.1",
+        "port_value": 8001
+      }
+    },
     "access_log_path": "/tmp/admin_access_log"
   },
   "cluster_manager": {
     "clusters": [
       {
         "name": "cluster_127_0_0_1_8877",
-        "connect_timeout_ms": 3000,
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin",        
+        "lb_policy": "round_robin",        
         "hosts": [
           {
             "url": "tcp://127.0.0.1:8877"
@@ -166,9 +179,9 @@
         ]},
       {
         "name": "cluster_demo_getambassador_io",
-        "connect_timeout_ms": 3000,
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin",        
+        "lb_policy": "round_robin",        
         "hosts": [
           {
             "url": "tcp://demo.getambassador.io:80"
@@ -177,9 +190,9 @@
         ]},
       {
         "name": "cluster_ext_auth",
-        "connect_timeout_ms": 3000,
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin",        
+        "lb_policy": "round_robin",        
         "hosts": [
           {
             "url": "tcp://demo.getambassador.io:80"
@@ -188,9 +201,9 @@
         ]},
       {
         "name": "cluster_httpbin_org_80",
-        "connect_timeout_ms": 3000,
+        "connect_timeout": 3000,
         "type": "strict_dns",
-        "lb_type": "round_robin",        
+        "lb_policy": "round_robin",        
         "hosts": [
           {
             "url": "tcp://httpbin.org:80"

@@ -5,5 +5,7 @@ name: authentication
 tls: upstream
 auth_service: "https://example-auth:3000"
 path_prefix: "/extauth"
-allowed_headers:
-- "x-qotm-session"
+response_headers_to_remove:
+  - "x-foo"
+  - "x-foo-bar"
+  - "x-bar"

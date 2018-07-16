@@ -14,7 +14,7 @@
                 ],
                 "_service": "127.0.0.1:8877",
                 "_source": "mapping-diag.yaml.1",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_127_0_0_1_8877",
                 "type": "strict_dns",
                 "urls": [
@@ -28,7 +28,7 @@
                 ],
                 "_service": "cors",
                 "_source": "mapping-cors.yaml.2",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_cors",
                 "type": "strict_dns",
                 "urls": [
@@ -42,7 +42,7 @@
                 ],
                 "_service": "cors-array:8080",
                 "_source": "mapping-cors-array.yaml.2",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_cors_array_8080",
                 "type": "strict_dns",
                 "urls": [
@@ -55,7 +55,7 @@
                 ],
                 "_service": "demo.getambassador.io",
                 "_source": "mapping-qotm.yaml.1",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_demo_getambassador_io",
                 "type": "strict_dns",
                 "urls": [
@@ -68,7 +68,7 @@
                 ],
                 "_service": "extauth",
                 "_source": "auth.yaml.1",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_ext_auth",
                 "type": "strict_dns",
                 "urls": [
@@ -82,7 +82,7 @@
                 ],
                 "_service": "httpbin.org:80",
                 "_source": "mapping-httpbin.yaml.1",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_httpbin_org_80",
                 "type": "strict_dns",
                 "urls": [
@@ -95,7 +95,7 @@
                 ],
                 "_service": "qotm",
                 "_source": "mapping-qotm.yaml.2",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_qotm",
                 "type": "strict_dns",
                 "urls": [
@@ -107,31 +107,33 @@
             {
                 "_source": "--internal--",
                 "config": {},
-                "name": "cors"
-            },
+                "name": "envoy.cors"
+            }, 
             {
                 "_services": [
                     "example-auth:3000"
                 ],
                 "_source": "auth.yaml.1",
                 "config": {
-                    "allowed_headers": [
-                        "x-extauth-required",
-                        "x-authenticated-as",
-                        "x-qotm-session"
-                    ],
-                    "cluster": "cluster_ext_auth",
-                    "path_prefix": "/extauth",
-                    "timeout_ms": 5000
+                    "http_service": {
+                        "response_headers_to_remove": [
+                            "x-foo", 
+                            "x-foo-bar", 
+                            "x-bar"
+                        ],
+                        "server_uri": {
+                            "cluster": "cluster_ext_auth", 
+                            "timeout": 5000, 
+                            "uri": "0.0.0.0:0"
+                        }
+                    }
                 },
-                "name": "extauth",
-                "type": "decoder"
+                "name": "envoy.ext_authz"
             },
             {
                 "_source": "--internal--",
                 "config": {},
-                "name": "router",
-                "type": "decoder"
+                "name": "envoy.router"
             }
         ],
         "listeners": [
@@ -577,7 +579,7 @@
             "kind": "Module",
             "name": "authentication",
             "version": "ambassador/v0",
-            "yaml": "apiVersion: ambassador/v0\nconfig:\n  allowed_headers:\n  - x-extauth-required\n  - x-authenticated-as\n  - x-qotm-session\n  auth_service: example-auth:3000\n  path_prefix: /extauth\nkind: Module\nname: authentication\n"
+            "yaml": "apiVersion: ambassador/v0\nconfig:\n  auth_service: example-auth:3000\n  path_prefix: /extauth\n  response_headers_to_remove:\n  - x-foo\n  - x-foo-bar\n  - x-bar\nkind: Module\nname: authentication\n"
         },
         "mapping-cors-array.yaml.1": {
             "_source": "mapping-cors-array.yaml",

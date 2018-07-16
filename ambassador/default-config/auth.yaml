@@ -5,7 +5,7 @@ name:  authentication
 config:
   auth_service: "demo.getambassador.io"
   path_prefix: "/auth/v0"
-  allowed_headers:
-  - "x-extauth-required"
-  - "x-authenticated-as"
-  - "x-qotm-session"
+  response_headers_to_remove:
+  - "x-foo"
+  - "x-foo-bar"
+  - "x-bar"

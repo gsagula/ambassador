@@ -14,7 +14,7 @@
                 ],
                 "_service": "127.0.0.1:8877",
                 "_source": "ambassador.yaml.1",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_127_0_0_1_8877",
                 "type": "strict_dns",
                 "urls": [
@@ -27,7 +27,7 @@
                 ],
                 "_service": "demo1",
                 "_source": "demo1.yaml.1",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_demo1",
                 "type": "strict_dns",
                 "urls": [
@@ -40,7 +40,7 @@
                 ],
                 "_service": "demo2",
                 "_source": "demo2.yaml.1",
-                "lb_type": "round_robin",
+                "lb_policy": "round_robin",
                 "name": "cluster_demo2",
                 "type": "strict_dns",
                 "urls": [
@@ -52,13 +52,12 @@
             {
                 "_source": "--internal--",
                 "config": {},
-                "name": "cors"
+                "name": "envoy.cors"
             },
             {
                 "_source": "--internal--",
                 "config": {},
-                "name": "router",
-                "type": "decoder"
+                "name": "envoy.router"
             }
         ],
         "listeners": [

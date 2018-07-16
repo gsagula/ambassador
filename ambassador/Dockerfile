@@ -25,7 +25,7 @@
 # 
 # and then read DATAWIRE/README.md.
 
-FROM datawire/ambassador-envoy-alpine-stripped:v1.6.0-446-g100a92e2
+FROM envoyproxy/envoy-alpine:latest
 
 MAINTAINER Datawire <flynn@datawire.io>
 LABEL PROJECT_REPO_URL         = "git@github.com:datawire/ambassador.git" \
